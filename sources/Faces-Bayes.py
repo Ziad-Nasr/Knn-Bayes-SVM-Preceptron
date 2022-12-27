@@ -22,8 +22,10 @@ def DataInput(ImageFileName,NumImages = 451):
     tempdata = np.array(updated_array)
     flatter =[]
     for i in range(NumImages):
-        flatter.append(tempdata[i].flatten().tolist())   
-    return flatter
+        flatter.append(tempdata[i].flatten().tolist()) 
+
+    visualize = np.array(flatter).reshape(NumImages,60, 70)      
+    return flatter,visualize
 
 def Training(LabelFileName,Data):
     Label=Sample.loadLabelsFile(LabelFileName, 451)
@@ -31,26 +33,54 @@ def Training(LabelFileName,Data):
     GNB.fit(Data,Label)
     return GNB
 
-def Prediction(ImageFileName,KNN, NumImages = 301):
-    PredictionDataSet = []
-    img = Sample.loadDataFile(ImageFileName,NumImages,60,70)
-    return KNN.predict(DataInput(ImageFileName,NumImages))
+def Prediction(ImageFileName,GNB, NumImages = 301):
+    return GNB.predict(DataInput(ImageFileName,NumImages)[0])
 
 #Check if Predicted = actual then check Error compared to Total.
-def CompareToReal(LabelFileName,PredictedDataSet, NumLabels = 301):
+def CompareToReal(LabelFileName,PredictedDataSet, NumLabels = 300):
     Wrong = 0
+    indecesWrong = []
+    indecesCorrect = []
     Label=Sample.loadLabelsFile(LabelFileName, NumLabels)
     for i in range(NumLabels):
         if (PredictedDataSet[i] != Label[i]):
             Wrong += 1
-    return (100.0*(NumLabels - Wrong)/NumLabels)
+            if (len(indecesWrong) < 6):
+                indecesWrong.append(i)
+        elif (len(indecesCorrect) < 6):
+            indecesCorrect.append(i)
+    return (100.0*(NumLabels - Wrong)/NumLabels),indecesWrong,indecesCorrect
 
-DataSet = DataInput("facedatatrain")
+DataSet,vis = DataInput("facedatatrain")
 
-print("Iteration %s for k = %s" % (i+1, i+1))
-KnnClassification = Training("facedatatrainlabels",DataSet,i+1,Distance = Euclidean) #Setting the classification with different K value in Euclidean Distance 
-OutputPrediction = Prediction("facedatavalidation",KnnClassification) #Prediction on another data set that is the Validation data. 
-Accuracy=CompareToReal("facedatavalidationlabels",OutputPrediction)
+def VisualizingWrong(FileName,Items,OutputItems,Num):
+    Faces = DataInput("facedatatest", NumImages = Num)[1]
+    for i in range(len(Items)):
+        plt.subplot(3,4,i+1)
+        plt.imshow(Faces[Items[i]])
+        plt.title(OutputItems[Items[i]])
+
+def VisualizingCorrect(FileName,Items,OutputItems,Num):
+    Faces = DataInput("facedatatest",NumImages=Num)[1]
+    for i in range(len(Items)):
+        plt.subplot(3,4,i+7)
+        plt.imshow(Faces[Items[i]])
+        plt.title(OutputItems[Items[i]])
+
+
+BayesClassification = Training("facedatatrainlabels",DataSet) #Setting the classification.
+OutputPrediction = Prediction("facedatavalidation",BayesClassification) #Prediction on another data set that is the Validation data. 
+Accuracy,SamplesWrong,SamplesCorrect =CompareToReal("facedatavalidationlabels",OutputPrediction)
 print(Accuracy)
 
-#Na2es Plotting el Graph ben el Manhattan w el Euclidean Distances
+BayesClassification = Training("facedatatrainlabels",DataSet) #Setting the classification.
+OutputPrediction = Prediction("facedatatest",BayesClassification, NumImages=150) #Prediction on another data set that is the Validation data. 
+Accuracy,SamplesWrong,SamplesCorrect =CompareToReal("facedatatestlabels",OutputPrediction,NumLabels = 150)
+print(Accuracy)
+
+VisualizingWrong('facedatatest',SamplesWrong,OutputPrediction,150)
+VisualizingCorrect('facedatatest',SamplesCorrect,OutputPrediction,150)
+plt.show()  
+
+print("The Accuracy of the Test Data is = %s" % (Accuracy))
+
