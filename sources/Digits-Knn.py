@@ -44,9 +44,12 @@ def CompareToReal(LabelFileName,PredictedDataSet, NumLabels = 1000):
 def VisualizingWrong(FileName,Items,Stuff):
     img = Sample.loadDataFile(FileName,1000,28,28)
     Label=Sample.loadLabelsFile("testlabels", 1000)
+    print(img[Items[0]])
     for i in range(len(Items)):
         plt.subplot(3,4,i+1)
-        plt.imshow(np.array(img[Items[i]].getPixels()).reshape(-1,1))
+        print("sbgcsdgcvshcbh")
+        print(np.array(img[Items[i]].getPixels()))
+        plt.imshow(np.array(img[Items[i]].getPixels()))
         plt.title(Stuff[Items[i]])
 
 def VisualizingCorrect(FileName,Items,Stuff):
@@ -65,7 +68,7 @@ K = []
 
 
 
-for i in range(2):
+for i in range(10):
     print("Iteration %s for k = %s" % (i+1, i+1))
     KnnClassificationEuclidean = Training("traininglabels",DataSet,i+1,Distance = Euclidean) #Setting the classification with different K value in Euclidean Distance 
     OutputPredictionEuclidean = Prediction("validationimages",KnnClassificationEuclidean) #Prediction on another data set that is the Validation data. 
@@ -85,12 +88,23 @@ plt.plot(K,TotalAccuracyManhattan,label="Manhattan")
 plt.legend()
 plt.show()
 
-for i in range(2):
+for i in range(10):
     print("Iteration %s for k = %s" % (i+1, i+1))
     KnnClassificationEuclidean = Training("traininglabels",DataSet,i+1,Distance = Euclidean) #Setting the classification with different K value in Euclidean Distance 
     OutputPredictionEuclidean = Prediction("testimages",KnnClassificationEuclidean) #Prediction on another data set that is the Testing data. 
     Accuracy,SamplesWrongEuclidean,SamplesCorrectEuclidean = CompareToReal("testlabels",OutputPredictionEuclidean)
     print(Accuracy)
+    TotalAccuracyEuclidean.append(Accuracy)
+    KnnClassification = Training("traininglabels",DataSet,i+1,Distance = Manhattan) #Setting the classification with different K value in Manhattan Distance 
+    OutputPrediction = Prediction("testimages",KnnClassification) #Prediction on another data set that is the Validation data. 
+    Accuracy,SamplesWrongEuclidean,SamplesCorrectEuclidean = CompareToReal("testlabels",OutputPrediction)
+    print(Accuracy)
+    TotalAccuracyManhattan.append(Accuracy)
+    K.append(i+1)
+plt.plot(K,TotalAccuracyEuclidean,label="Euclidean")
+plt.plot(K,TotalAccuracyManhattan,label="Manhattan")
+plt.legend()
+plt.show()
 PlottingImg = []
 print(SamplesWrongEuclidean,SamplesCorrectEuclidean)
 for i in range(len(SamplesWrongEuclidean)):
@@ -98,3 +112,8 @@ for i in range(len(SamplesWrongEuclidean)):
 VisualizingWrong('testimages',SamplesWrongEuclidean,OutputPredictionEuclidean)
 VisualizingCorrect('testimages',SamplesCorrectEuclidean,OutputPredictionEuclidean)
 plt.show()
+
+KnnClassificationEuclidean = Training("traininglabels",DataSet,3,Distance = Euclidean) #Setting the classification with different K value in Euclidean Distance 
+OutputPredictionEuclidean = Prediction("testimages",KnnClassificationEuclidean) #Prediction on another data set that is the Testing data. 
+Accuracy,SamplesWrongEuclidean,SamplesCorrectEuclidean = CompareToReal("testlabels",OutputPredictionEuclidean)
+print("For K = 3 and Using Euclidean Distance the Accuracy is = %s" % (Accuracy))
