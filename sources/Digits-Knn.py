@@ -44,11 +44,8 @@ def CompareToReal(LabelFileName,PredictedDataSet, NumLabels = 1000):
 def VisualizingWrong(FileName,Items,Stuff):
     img = Sample.loadDataFile(FileName,1000,28,28)
     Label=Sample.loadLabelsFile("testlabels", 1000)
-    print(img[Items[0]])
     for i in range(len(Items)):
         plt.subplot(3,4,i+1)
-        print("sbgcsdgcvshcbh")
-        print(np.array(img[Items[i]].getPixels()))
         plt.imshow(np.array(img[Items[i]].getPixels()))
         plt.title(Stuff[Items[i]])
 
@@ -82,7 +79,6 @@ for i in range(10):
     TotalAccuracyManhattan.append(Accuracy)
     K.append(i+1)
 
-#Na2es Plotting el Graph ben el Manhattan w el Euclidean Distances
 plt.plot(K,TotalAccuracyEuclidean,label="Euclidean")
 plt.plot(K,TotalAccuracyManhattan,label="Manhattan")
 plt.legend()
@@ -106,7 +102,6 @@ plt.plot(K,TotalAccuracyManhattan,label="Manhattan")
 plt.legend()
 plt.show()
 PlottingImg = []
-print(SamplesWrongEuclidean,SamplesCorrectEuclidean)
 for i in range(len(SamplesWrongEuclidean)):
     PlottingImg.append(SamplesWrongEuclidean[i])
 VisualizingWrong('testimages',SamplesWrongEuclidean,OutputPredictionEuclidean)
